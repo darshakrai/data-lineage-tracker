@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+*.sqlite3
+
+# Airflow
+logs/
+airflow_home/
+*.pid
+*.db
+
+# Environment
+.env
+*.env
+secrets.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+

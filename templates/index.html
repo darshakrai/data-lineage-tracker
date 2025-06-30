@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Lineage Tracker | Amundsen + Airflow + Flask</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .lineage-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 5s linear forwards;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .search-box {
+            transition: all 0.3s ease;
+        }
+        .search-box:focus-within {
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-project-diagram text-2xl"></i>
+                <span class="text-xl font-bold">Data Lineage Tracker</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#features" class="hover:text-blue-200 transition">Features</a>
+                <a href="#demo" class="hover:text-blue-200 transition">Demo</a>
+                <a href="#architecture" class="hover:text-blue-200 transition">Architecture</a>
+                <a href="#contact" class="hover:text-blue-200 transition">Contact</a>
+            </div>
+            <button class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Metadata-Driven Data Lineage with Amundsen</h1>
+                <p class="text-xl mb-8">Track column-level lineage across your data pipelines with Amundsen, Airflow, and Flask.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#demo" class="bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold text-center hover:bg-blue-100 transition">View Demo</a>
+                    <a href="#architecture" class="border-2 border-white px-6 py-3 rounded-lg font-semibold text-center hover:bg-white hover:text-blue-900 transition">Learn More</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="relative w-full max-w-md">
+                    <div class="absolute -top-10 -left-10 w-32 h-32 bg-blue-400 rounded-full opacity-20"></div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-300 rounded-full opacity-20"></div>
+                    <div class="relative bg-white rounded-xl shadow-2xl p-6 text-gray-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg">Lineage Preview</h3>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Amundsen</span>
+                        </div>
+                        <svg viewBox="0 0 300 200" class="w-full">
+                            <!-- Sample lineage visualization -->
+                            <path d="M50,50 L150,50 L150,150 L250,150" stroke="#3b82f6" stroke-width="2" fill="none" class="lineage-path"/>
+                            <circle cx="50" cy="50" r="20" fill="#10b981"/>
+                            <circle cx="150" cy="50" r="20" fill="#f59e0b"/>
+                            <circle cx="150" cy="150" r="20" fill="#6366f1"/>
+                            <circle cx="250" cy="150" r="20" fill="#ec4899"/>
+                            <text x="50" y="90" text-anchor="middle" class="text-xs">Source DB</text>
+                            <text x="150" y="90" text-anchor="middle" class="text-xs">Airflow DAG</text>
+                            <text x="150" y="190" text-anchor="middle" class="text-xs">Transformation</text>
+                            <text x="250" y="190" text-anchor="middle" class="text-xs">Dashboard</text>
+                        </svg>
+                        <div class="mt-4 text-sm text-gray-600">
+                            <p>Column <span class="font-mono bg-gray-100 px-1">user_id</span> traced from source to dashboard</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Key Features</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-columns text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Column-Level Lineage</h3>
+                    <p class="text-gray-600">Track data flow at the column level with detailed metadata from source to destination.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-search text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Searchable Catalog</h3>
+                    <p class="text-gray-600">Powerful search capabilities across all metadata with Amundsen's intuitive interface.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-network-wired text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Airflow Integration</h3>
+                    <p class="text-gray-600">Automatic lineage extraction from Airflow DAGs with custom operators and hooks.</p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-code-branch text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Impact Analysis</h3>
+                    <p class="text-gray-600">Understand downstream impacts of schema changes before deployment.</p>
+                </div>
+                
+                <!-- Feature 5 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-history text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Version Tracking</h3>
+                    <p class="text-gray-600">Maintain historical versions of schemas and track changes over time.</p>
+                </div>
+                
+                <!-- Feature 6 -->
+                <div class="bg-gray-50 rounded-xl p-6 shadow-md card-hover transition duration-300">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-shield-alt text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-800">Data Governance</h3>
+                    <p class="text-gray-600">Enforce data quality standards with policy-based metadata validation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Interactive Demo</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-4 border-b flex items-center bg-gray-100">
+                    <div class="flex space-x-2 mr-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="search-box flex-1 bg-white rounded-lg border border-gray-300 flex items-center px-4 py-2">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>
+                        <input type="text" placeholder="Search tables, columns, or DAGs..." class="flex-1 outline-none">
+                        <button class="bg-blue-600 text-white px-4 py-1 rounded text-sm">Search</button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row">
+                    <!-- Search Results -->
+                    <div class="w-full md:w-1/3 border-r p-4 bg-white">
+                        <h3 class="font-semibold mb-4 text-gray-700">Search Results</h3>
+                        <div class="space-y-2">
+                            <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">users_dim</span>
+                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Table</span>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">analytics.warehouse</div>
+                            </div>
+                            <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer bg-blue-50 border-blue-200">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">user_id</span>
+                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Column</span>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">analytics.warehouse.users_dim</div>
+                            </div>
+                            <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">process_users</span>
+                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">DAG</span>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">Airflow</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lineage Visualization -->
+                    <div class="w-full md:w-2/3 p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-semibold text-lg">Column Lineage: <span class="font-mono">user_id</span></h3>
+                            <div class="flex space-x-2">
+                                <button class="bg-gray-100 px-3 py-1 rounded text-sm flex items-center">
+                                    <i class="fas fa-download mr-1 text-gray-600"></i> Export
+                                </button>
+                                <button class="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm flex items-center">
+                                    <i class="fas fa-share-alt mr-1"></i> Share
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <svg viewBox="0 0 600 300" class="w-full">
+                                <!-- Complex lineage visualization -->
+                                <path d="M100,50 L200,50 L200,100 L300,100 L300,200 L400,200" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                                <path d="M100,50 L100,150 L200,150 L200,200 L300,200" stroke="#3b82f6" stroke-width="2" fill="none"/>
+                                <path d="M100,50 L100,250 L400,250" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                                
+                                <!-- Nodes -->
+                                <circle cx="100" cy="50" r="15" fill="#10b981"/>
+                                <circle cx="200" cy="50" r="15" fill="#f59e0b"/>
+                                <circle cx="300" cy="100" r="15" fill="#6366f1"/>
+                                <circle cx="200" cy="150" r="15" fill="#f59e0b"/>
+                                <circle cx="100" cy="150" r="15" fill="#ec4899"/>
+                                <circle cx="200" cy="200" r="15" fill="#f59e0b"/>
+                                <circle cx="300" cy="200" r="15" fill="#6366f1"/>
+                                <circle cx="400" cy="200" r="15" fill="#14b8a6"/>
+                                <circle cx="100" cy="250" r="15" fill="#ec4899"/>
+                                <circle cx="400" cy="250" r="15" fill="#14b8a6"/>
+                                
+                                <!-- Labels -->
+                                <text x="100" y="30" text-anchor="middle" class="text-xs" font-size="10">users (prod_db)</text>
+                                <text x="200" y="30" text-anchor="middle" class="text-xs" font-size="10">extract_users</text>
+                                <text x="300" y="80" text-anchor="middle" class="text-xs" font-size="10">transform</text>
+                                <text x="200" y="130" text-anchor="middle" class="text-xs" font-size="10">load_staging</text>
+                                <text x="100" y="130" text-anchor="middle" class="text-xs" font-size="10">staging.users</text>
+                                <text x="200" y="180" text-anchor="middle" class="text-xs" font-size="10">load_warehouse</text>
+                                <text x="300" y="180" text-anchor="middle" class="text-xs" font-size="10">analytics.users</text>
+                                <text x="400" y="180" text-anchor="middle" class="text-xs" font-size="10">dashboard</text>
+                                <text x="100" y="230" text-anchor="middle" class="text-xs" font-size="10">backup.users</text>
+                                <text x="400" y="230" text-anchor="middle" class="text-xs" font-size="10">reporting</text>
+                            </svg>
+                            
+                            <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                <div class="p-2 bg-green-50 rounded">
+                                    <div class="text-green-800 font-medium">Source</div>
+                                    <div class="text-xs text-gray-600">prod_db.users</div>
+                                </div>
+                                <div class="p-2 bg-blue-50 rounded">
+                                    <div class="text-blue-800 font-medium">Processes</div>
+                                    <div class="text-xs text-gray-600">3 transformations</div>
+                                </div>
+                                <div class="p-2 bg-purple-50 rounded">
+                                    <div class="text-purple-800 font-medium">Destinations</div>
+                                    <div class="text-xs text-gray-600">4 endpoints</div>
+                                </div>
+                                <div class="p-2 bg-yellow-50 rounded">
+                                    <div class="text-yellow-800 font-medium">Owners</div>
+                                    <div class="text-xs text-gray-600">Data Team</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<!-- Metadata Log Section -->
+<section class="py-8 bg-gray-100">
+  <div class="container mx-auto px-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">📜 Metadata Log</h2>
+    <ul class="list-disc pl-6 text-gray-700">
+      {% for line in timestamps %}
+        <li>{{ line.strip() }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">System Architecture</h2>
+            
+            <div class="bg-gray-50 rounded-xl p-8 shadow-inner">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <!-- Amundsen -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-database text-blue-600"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">Amundsen</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Metadata service providing search and discovery capabilities with Neo4j backend.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded mr-2">Frontend</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Metadata</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Airflow -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-green-500">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-green-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-wind text-green-600"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">Airflow</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Orchestration layer with custom operators to extract and push lineage metadata.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded mr-2">DAGs</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Operators</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Flask API -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-server text-purple-600"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">Flask API</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Custom REST API for metadata ingestion and processing with request validation.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded mr-2">Endpoints</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Validation</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Sources -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-cloud text-yellow-600"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800">Data Sources</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Various databases, data lakes, and applications with metadata extraction.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded mr-2">SQL</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">NoSQL</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Files</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-10 flex justify-center">
+                    <div class="relative w-full max-w-3xl">
+                        <!-- Architecture diagram -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <svg viewBox="0 0 600 300" class="w-full">
+                                <!-- Data Sources -->
+                                <rect x="50" y="50" width="100" height="60" rx="5" fill="#fef3c7" stroke="#f59e0b"/>
+                                <text x="100" y="85" text-anchor="middle" font-size="12">Data Sources</text>
+                                
+                                <!-- Airflow -->
+                                <rect x="225" y="50" width="100" height="60" rx="5" fill="#dcfce7" stroke="#10b981"/>
+                                <text x="275" y="85" text-anchor="middle" font-size="12">Airflow</text>
+                                
+                                <!-- Flask API -->
+                                <rect x="400" y="120" width="100" height="60" rx="5" fill="#e0e7ff" stroke="#6366f1"/>
+                                <text x="450" y="155" text-anchor="middle" font-size="12">Flask API</text>
+                                
+                                <!-- Amundsen -->
+                                <rect x="225" y="190" width="100" height="60" rx="5" fill="#dbeafe" stroke="#3b82f6"/>
+                                <text x="275" y="225" text-anchor="middle" font-size="12">Amundsen</text>
+                                
+                                <!-- UI -->
+                                <rect x="400" y="50" width="100" height="60" rx="5" fill="#f3e8ff" stroke="#8b5cf6"/>
+                                <text x="450" y="85" text-anchor="middle" font-size="12">Web UI</text>
+                                
+                                <!-- Arrows -->
+                                <path d="M150,80 L225,80" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M325,80 L400,80" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M275,110 L275,190" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M325,220 L400,150" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M450,110 L450,120" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+                                    </marker>
+                                </defs>
+                            </svg>
+                            
+                            <div class="mt-6 grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs">
+                                <div class="p-2 bg-yellow-100 rounded">Data Extraction</div>
+                                <div class="p-2 bg-green-100 rounded">Lineage Capture</div>
+                                <div class="p-2 bg-blue-100 rounded">Metadata Service</div>
+                                <div class="p-2 bg-purple-100 rounded">API Layer</div>
+                                <div class="p-2 bg-indigo-100 rounded">User Interface</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">What Our Users Say</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">JD</div>
+                        <div>
+                            <h4 class="font-semibold">Jane Doe</h4>
+                            <p class="text-sm text-gray-500">Data Engineer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"The column-level lineage has been a game changer for our data governance initiatives. We can now trace issues back to their source in minutes."</p>
+                    <div class="mt-4 flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold mr-4">AS</div>
+                        <div>
+                            <h4 class="font-semibold">Alex Smith</h4>
+                            <p class="text-sm text-gray-500">Analytics Manager</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"Implementing this with our existing Airflow infrastructure was seamless. The search capabilities have dramatically improved our team's productivity."</p>
+                    <div class="mt-4 flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold mr-4">MB</div>
+                        <div>
+                            <h4 class="font-semibold">Maria Brown</h4>
+                            <p class="text-sm text-gray-500">Data Governance Lead</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"Finally a solution that provides both technical metadata and business context in one place. Our compliance audits are now much smoother."</p>
+                    <div class="mt-4 flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-6">Ready to Transform Your Data Governance?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Implement metadata-driven lineage tracking with Amundsen, Airflow, and Flask in your organization today.</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="#contact" class="bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-100 transition">Get Started</a>
+                <a href="#demo" class="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition">See Full Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Contact Us</h2>
+            
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">Get in Touch</h3>
+                    <p class="text-gray-600 mb-6">Have questions about implementing data lineage tracking in your organization? Our team is ready to help.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="text-blue-600 mt-1 mr-4">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Location</h4>
+                                <p class="text-gray-600">123 Data Street, San Francisco, CA 94107</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="text-blue-600 mt-1 mr-4">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Email</h4>
+                                <p class="text-gray-600">info@lineagetracker.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="text-blue-600 mt-1 mr-4">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Phone</h4>
+                                <p class="text-gray-600">(555) 123-4567</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2">
+                    <form class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                            <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-project-diagram text-2xl text-blue-400"></i>
+                        <span class="text-xl font-bold">Data Lineage Tracker</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">Metadata-driven lineage for modern data stacks.</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-sm font-semibold uppercase tracking-wider mb-4 text-gray-400">Product</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#features" class="text-gray-300 hover:text-white transition">Features</a></li>
+                            <li><a href="#demo" class="text-gray-300 hover:text-white transition">Demo</a></li>
+                            <li><a href="#architecture" class="text-gray-300 hover:text-white transition">Architecture</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold uppercase tracking-wider mb-4 text-gray-400">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-300 hover:text-white transition">Documentation</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition">API Reference</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition">Blog</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold uppercase tracking-wider mb-4 text-gray-400">Company</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-300 hover:text-white transition">About</a></li>
+                            <li><a href="#contact" class="text-gray-300 hover:text-white transition">Contact</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition">Careers</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 Data Lineage Tracker. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation for the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Animate cards on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fadeIn');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.card-hover').forEach(card => {
+                observer.observe(card);
+                card.style.opacity = '0';
+                card.classList.add('transition-opacity', 'duration-500');
+                card.classList.add('animate-fadeIn');
+            });
+            
+            // Search functionality for demo
+            const searchInput = document.querySelector('.search-box input');
+            if (searchInput) {
+                searchInput.addEventListener('focus', function() {
+                    document.querySelector('.search-box').classList.add('ring-2', 'ring-blue-500');
+                });
+                searchInput.addEventListener('blur', function() {
+                    document.querySelector('.search-box').classList.remove('ring-2', 'ring-blue-500');
+                });
+            }
+        });
+    </script>
+    <div class="mt-10 bg-gray-100 p-4 rounded-lg shadow-inner">
+    <h2 class="text-xl font-bold text-gray-700 mb-4">Airflow Metadata Logs</h2>
+    <ul class="text-sm text-gray-600 list-disc pl-6">
+        {% for entry in metadata %}
+            <li>{{ entry.strip() }}</li>
+        {% else %}
+            <li>No metadata pushed yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+</html>
