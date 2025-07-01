@@ -5,7 +5,7 @@ A mock project to simulate metadata-driven lineage using **Flask**, **Airflow**,
 ## 🔧 Tools Used
 - Flask
 - Airflow (DAG simulation)
-- Tailwind CSS + DeepSite UI
+- Tailwind CSS + HTML
 - Python3.10 on Ubuntu WSL
 
 ## ✅ What It Does
