@@ -24,7 +24,7 @@ source venv/bin/activate
 export AIRFLOW_HOME=~/lineage-tracker/airflow
 
 # Start Flask (in background)
-nohup python3 app.py &
+python3 app.py
 
 # Start Airflow
 airflow standalone
