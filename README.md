@@ -16,8 +16,15 @@ A mock project to simulate metadata-driven lineage using **Flask**, **Airflow**,
 ## 📦 Run It Locally
 
 ```bash
-# Start Flask
-python3 app.py
+
+# Activate virtualenv
+source venv/bin/activate
+
+# Set Airflow home
+export AIRFLOW_HOME=~/lineage-tracker/airflow
+
+# Start Flask (in background)
+nohup python3 app.py &
 
 # Start Airflow
 airflow standalone
